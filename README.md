@@ -1,6 +1,17 @@
 # chess-board
 Library for representation of a physical chess board with no game rules implied.
 
+## Example
+```clojure
+  (require '[chess-board.core :refer [board starting-position square move]])
+  (require '[chess-board.pprint :as pp])
+  (pp/pprint (move starting-position (square :e2) (square :e4)))
+```
+
+## Todo
+ - Add structural utilities, e.g. getting row, file, diagonal, and knight-move representations. Note that this is arguably at odds with the intention of making the library game rule-agnostic.
+ - Add input validation on movement.
+
 ## License
 
 Copyright © 2019 FIXME
