@@ -19,7 +19,7 @@
   [c]
   (- (int c) (int \0)))
 
-(defn- color
+(defn color
   [c-type]
   ({:uppercase-letter :white
     :lowercase-letter :black}

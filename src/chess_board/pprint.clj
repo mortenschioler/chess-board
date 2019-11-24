@@ -1,8 +1,8 @@
 (ns chess-board.pprint)
 
 (defn piece->char
-  "This function currently assumes that we print to a black background,
-  which means that we actually swap white and black unicode characters."
+  "This function currently assumes that it prints to a black background,
+  which means that the unicode characters use inverted piece colors."
   [piece]
   (if piece
     (let [base (case (:color piece)
