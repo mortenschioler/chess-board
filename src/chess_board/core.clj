@@ -26,3 +26,10 @@
     (-> board
         (assoc-in square-from nil)
         (assoc-in square-to moved-piece))))
+
+(defn reduce-indexed
+  [board f]
+  (reduce
+    f
+    board
+    (for [rank (range 8) file (range 8)] [rank file])))
