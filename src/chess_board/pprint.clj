@@ -26,7 +26,7 @@
 (defn print-square
   [square]
   (print (str 
-         (ansi-escape-square-color (:color square)) 
+         (ansi-escape-square-color (:square-color square)) 
          (when (:piece square)
            (ansi-escape-piece-color (get-in square [:piece :color])))
          (if (:piece square)
@@ -35,22 +35,11 @@
          " "
          ansi-escape-reset)))
 
-(defn assoc-square-color
-  [board [rank file]]
-  (assoc-in board [rank file :color]
-    (if (even? (+ rank file))
-      :light
-      :dark)))
+(defn print-row
+  [row]
+  (dorun (map print-square row))
+  (println))
 
-(defn assoc-piece
-  [board [rank file]]
-  (assoc-in board [rank file :piece] (get-in board [rank file])))
-
-(defn pprint
+(defn print-board
   [board]
-  (doseq [rank (-> board
-                   (core/reduce-indexed assoc-piece)
-                   (core/reduce-indexed assoc-square-color))]
-    (doseq [square rank]
-      (print-square square))
-    (println)))
+  (dorun (map print-row (partition 8 board))))

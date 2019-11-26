@@ -1,9 +1,13 @@
 (ns chess-board.fen
   (:require 
-    [clojure.string :as str])
+    [clojure.string :as str]
+    [chess-board.api :as api])
   (:refer-clojure
     :exclude [read read-line])
   (:import (java.lang Character)))
+
+(def empty-board
+  "8/8/8/8/8/8/8/8")
 
 (def starting-position
   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
@@ -38,14 +42,13 @@
       (#{:letter-number} c-type) (repeat (as-number c) nil)
       (#{:uppercase-letter :lowercase-letter} c-type) [{:type (piece-type c) :color (color c-type)}])))
 
-(defn read-line
-  [fen-line]
-  (->> fen-line
-       (mapcat read-piece)
-       (vec)))
-
-(defn read
-  "Convert a FEN string to a board"
+(defn lexicalize
+  "Lexicalize the FEN into a data structure."
   [fen]
-  (->> (str/split fen #"/")
-       (mapv read-line)))
+  (let [[piece-placement] (str/split #" " fen)]
+    {:piece-placement (remove #{\/} piece-placement)}))
+
+(defn read-fen
+  [empty-board fen]
+  "parse a position from a Forsyth-Edwards Notation"
+  (-> empty-board))

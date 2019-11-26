@@ -2,35 +2,34 @@
   (:require [clojure.string :as str]
             [chess-board.squares :refer :all]))
 
-(def starting-position
-  [
-   [{:color :black :type :rook} {:color :black :type :knight} {:color :black :type :bishop} {:color :black :type :queen} {:color :black :type :king} {:color :black :type :bishop} {:color :black :type :knight} {:color :black :type :rook}]
-   [{:color :black :type :pawn} {:color :black :type :pawn} {:color :black :type :pawn} {:color :black :type :pawn} {:color :black :type :pawn} {:color :black :type :pawn} {:color :black :type :pawn} {:color :black :type :pawn}]
-   [nil nil nil nil nil nil nil nil]
-   [nil nil nil nil nil nil nil nil]
-   [nil nil nil nil nil nil nil nil]
-   [nil nil nil nil nil nil nil nil]
-   [{:color :white :type :pawn} {:color :white :type :pawn} {:color :white :type :pawn} {:color :white :type :pawn} {:color :white :type :pawn} {:color :white :type :pawn} {:color :white :type :pawn} {:color :white :type :pawn}]
-   [{:color :white :type :rook} {:color :white :type :knight} {:color :white :type :bishop} {:color :white :type :queen} {:color :white :type :king} {:color :white :type :bishop} {:color :white :type :knight} {:color :white :type :rook}]
-  ])
+(defn empty-square
+  [color]
+  {:square-color color
+   :piece nil})
 
-(defn square
-  "Return the address for the square named by the descriptor."
-  [descriptor]
-  (let [[file rank] (name descriptor)]
-    [(- (int \8) (int rank)) (- (int file) (int \a))]))
+(def empty-board
+  (map
+    (fn [i]
+      (empty-square 
+        (if (even? (+ i (quot i 8)))
+          :light
+          :dark)))
+    (range 64)))
+
+(def starting-postion empty-board)
+
+(defn place-piece
+  [board square piece]
+  (assoc-in board [square :piece] piece))
+
+(defn remove-piece
+  [board square]
+  (assoc-in board [square :piece] nil))
 
 (defn make-move
   "Move piece, or return nil if the move is invalid."
   [board square-from square-to]
-  (when-let [moved-piece (get-in board square-from)]
+  (when-let [moved-piece (get board square-from)]
     (-> board
-        (assoc-in square-from nil)
-        (assoc-in square-to moved-piece))))
-
-(defn reduce-indexed
-  [board f]
-  (reduce
-    f
-    board
-    (for [rank (range 8) file (range 8)] [rank file])))
+        (remove-piece square-from)
+        (place-piece square-to moved-piece))))

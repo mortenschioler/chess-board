@@ -1,5 +1,5 @@
 # chess-board
-Library for representation of a physical chess board with no game rules implied.
+Library for representation of a physical chess board and pieces with no game rules implied.
 
 ## Example
 ```clojure
