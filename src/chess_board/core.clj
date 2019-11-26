@@ -1,5 +1,6 @@
 (ns chess-board.core
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [chess-board.squares :refer :all]))
 
 (def starting-position
   [
