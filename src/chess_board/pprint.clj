@@ -1,11 +1,10 @@
-(ns chess-board.pprint
-  (:require [chess-board.core :as core]))
+(ns chess-board.pprint)
 
 (defn piece->char
   [piece]
   (if piece
     (let [utf8-base 0x265a
-          utf8-offset (.indexOf [:king :queen :rook :bishop :knight :pawn] (:type piece))]
+          utf8-offset (.indexOf [:king :queen :rook :bishop :knight :pawn] (:piece-type piece))]
       (str (char (+ utf8-base utf8-offset))))
     " "))
 
@@ -28,7 +27,7 @@
   (print (str 
          (ansi-escape-square-color (:square-color square)) 
          (when (:piece square)
-           (ansi-escape-piece-color (get-in square [:piece :color])))
+           (ansi-escape-piece-color (get-in square [:piece :piece-color])))
          (if (:piece square)
            (piece->char (:piece square))
            " ")
@@ -42,4 +41,4 @@
 
 (defn print-board
   [board]
-  (dorun (map print-row (partition 8 board))))
+  (dorun (map print-row (partition 8 (:squares board)))))

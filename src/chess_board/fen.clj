@@ -1,54 +1,58 @@
 (ns chess-board.fen
   (:require 
     [clojure.string :as str]
-    [chess-board.api :as api])
+    [chess-board.core :as chess-board])
   (:refer-clojure
     :exclude [read read-line])
   (:import (java.lang Character)))
 
-(def empty-board
-  "8/8/8/8/8/8/8/8")
-
 (def starting-position
   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
 
-(defn char-type
+(defn- as-number
   [^Character c]
-  (case (Character/getType c)
-    1 :uppercase-letter
-    2 :lowercase-letter
-    9 :letter-number))
-
-(defn as-number
-  [c]
   (- (int c) (int \0)))
 
-(defn color
-  [c-type]
-  ({:uppercase-letter :white
-    :lowercase-letter :black}
-   c-type))
+(defn- character-type
+  [^Character c]
+  (case (Character/getType c)
+    (1 2) :piece
+    9 :number
+    24 :forward-slash))
 
-(defn piece-type
-  [c]
-    ({\p :pawn \n :knight \b :bishop \r :rook \q :queen \k :king
-      \P :pawn \N :knight \B :bishop \R :rook \Q :queen \K :king}
-     c))
+(defn- piece-type
+  [^Character c]
+  (case (Character/toLowerCase c)
+    \k :king
+    \q :queen
+    \r :rook
+    \b :bishop
+    \n :knight
+    \p :pawn))
 
-(defn read-piece
-  [c]
-  (let [c-type (char-type c)]
-    (cond
-      (#{:letter-number} c-type) (repeat (as-number c) nil)
-      (#{:uppercase-letter :lowercase-letter} c-type) [{:type (piece-type c) :color (color c-type)}])))
+(defn- piece-color
+  [^Character c]
+  (case (Character/getType c)
+    1 :white
+    2 :black))
 
-(defn lexicalize
-  "Lexicalize the FEN into a data structure."
-  [fen]
-  (let [[piece-placement] (str/split #" " fen)]
-    {:piece-placement (remove #{\/} piece-placement)}))
+(defn- char->piece
+  [^Character c]
+  {:piece-type (piece-type c)
+   :piece-color (piece-color c)})
 
-(defn read-fen
+(defn read
   [empty-board fen]
   "parse a position from a Forsyth-Edwards Notation"
-  (-> empty-board))
+  (let [[piece-positions] (str/split fen #" ")]
+    (loop [board empty-board
+           unplaced-pieces fen
+           square 0]
+      (let [[c & remaining] unplaced-pieces]
+      (if c
+        (case (character-type c)
+          :piece (recur (chess-board/place-piece board square (char->piece c)) remaining (inc square))
+          :number (recur board remaining (+ square (as-number c)))
+          :forward-slash (recur board remaining square))
+        board)))))
+
