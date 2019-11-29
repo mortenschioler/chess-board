@@ -9,18 +9,18 @@
 (def starting-position
   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
 
-(defn- as-number
+(defn as-number
   [^Character c]
   (- (int c) (int \0)))
 
-(defn- character-type
+(defn character-type
   [^Character c]
   (case (Character/getType c)
     (1 2) :piece
     9 :number
     24 :forward-slash))
 
-(defn- piece-type
+(defn piece-type
   [^Character c]
   (case (Character/toLowerCase c)
     \k :king
@@ -30,13 +30,13 @@
     \n :knight
     \p :pawn))
 
-(defn- piece-color
+(defn piece-color
   [^Character c]
   (case (Character/getType c)
     1 :white
     2 :black))
 
-(defn- char->piece
+(defn char->piece
   [^Character c]
   {:piece-type (piece-type c)
    :piece-color (piece-color c)})

@@ -4,17 +4,21 @@
   [square]
   [:squares square :piece])
 
+(defn get-piece
+  [board square]
+  (get-in board (square-locator square)))
+
 (defn place-piece
   [board square piece]
+  (when-let [occupant (get-piece board square)]
+    (throw (ex-info "Cannot place a piece on an occupied square." {:reason :square-occupied :board board :square square})))
   (assoc-in board (square-locator square) piece))
 
 (defn remove-piece
   [board square]
+  (when-not (get-piece board square)
+    (throw (ex-info "Cannot remove a piece from an empty square." {:reason :no-piece-to-move :board board :square square})))
   (assoc-in board (square-locator square) nil))
-
-(defn get-piece
-  [board square]
-  (get-in board (square-locator square)))
 
 (defn move
   [board square-from square-to]
