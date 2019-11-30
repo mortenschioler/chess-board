@@ -40,5 +40,6 @@
   (println))
 
 (defn print-board
-  [board]
-  (dorun (map print-row (partition 8 (:squares board)))))
+  [board & {:keys [show-coordinates] :or {show-coordinates true} :as opts}]
+  (dorun (map-indexed (fn [i row] (print (- 8 i)) (print-row row)) (partition 8 (:squares board))))
+  (when show-coordinates (println " a b c d e f g h")))

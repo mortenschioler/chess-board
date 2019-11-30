@@ -12,14 +12,16 @@
 
 (defonce game (atom new-game-state))
 
-(defn show!
+(defn show
   []
   (pp/print-board (last (:history @game))))
+
+(show)
 
 (defn new-game!
   []
   (reset! game new-game-state)
-  (show!))
+  (show))
 
 (defn change-board!
   [f]
@@ -27,7 +29,7 @@
          (fn [game]
            (-> game
                (update :history conj (f (last (:history game)))))))
-  (show!))
+  (show))
 
 
 (defn remove-piece!
@@ -52,10 +54,18 @@
           (board/remove-piece to)
           (board/move from to)))))
 
+(defn clear-board!
+  []
+  (change-board! (constantly board/empty-board)))
+
 (defn undo!
   []
   (swap! game update :history pop)
-  (show!))
+  (show))
 
 ;; aliases for the lazy typist
 (def mv move!)
+(def tk take!)
+(def u undo!)
+(def rm remove-piece!)
+(def pl place-piece!)
