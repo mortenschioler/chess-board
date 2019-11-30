@@ -58,6 +58,10 @@
   []
   (change-board! (constantly board/empty-board)))
 
+(defn set-position!
+  [fen]
+  (change-board! (constantly (fen/read board/empty-board fen))))
+
 (defn undo!
   []
   (swap! game update :history pop)
