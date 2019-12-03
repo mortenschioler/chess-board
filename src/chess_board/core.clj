@@ -32,6 +32,10 @@
           :light
           :dark))
 
+(defn square?
+  [?square]
+  (<= 0 ?square 64))
+
 (def empty-board
   {:squares (mapv (fn [square] {:piece nil :square-color (square-color square) :key square}) (range 64))})
 

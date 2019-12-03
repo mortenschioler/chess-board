@@ -9,6 +9,9 @@
 (def starting-position
   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
 
+(def empty-board
+  "8/8/8/8/8/8/8/8")
+
 (defn as-number
   [^Character c]
   (- (int c) (int \0)))
@@ -40,6 +43,11 @@
   [^Character c]
   {:piece-type (piece-type c)
    :piece-color (piece-color c)})
+
+(defn read-square
+  [[file-char rank-char]]
+  (+ (* 8 ())
+     (- 1 (as-number rank-char))))
 
 (defn read
   [empty-board fen]

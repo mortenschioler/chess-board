@@ -5,7 +5,5 @@
 
 (deftest test-read
   (is 
-    (= (fen/read fen/empty-board)
-       core/empty-board)
-    (= (fen/read fen/starting-position)
-         core/starting-position)))
+    (= (fen/read core/empty-board fen/empty-board)
+       core/empty-board)))
