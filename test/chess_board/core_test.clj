@@ -8,4 +8,6 @@
   (is (= b1
          (offset a1 {:east 1})))
   (is (= f3
-         (offset g1 {:north 2 :west 1}))))
+         (offset g1 {:north 2 :west 1})))
+  (is (= nil
+         (offset a8 {:northwest 1}))))
