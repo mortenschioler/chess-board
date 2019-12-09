@@ -48,11 +48,19 @@
    :west -1
    :northwest -9})
 
+(def directions
+  {:all (set (keys compass))
+   :lateral #{:north :east :south :west}
+   :diagonal #{:northeast :southeast :southwest :northwest}})
+
 (defn offset
-  [origin-square directions]
+  "Take a square and a bearing, and return the target square, or nil if not on the board.
+  A bearing is a map of directions to distances representing the vector sum of 
+  the distances traveled in each direction."
+  [origin-square bearing]
   (square? 
     (reduce-kv
       (fn [target-square direction distance]
         (+ target-square (* (direction compass) distance)))
       origin-square
-      (select-keys directions (keys compass)))))
+      (select-keys bearing (:all directions)))))
