@@ -32,11 +32,27 @@
           :light
           :dark))
 
+(def empty-board
+  {:squares (mapv (fn [square] {:piece nil :square-color (square-color square) :key square}) (range 64))})
+
 (defn square?
   [?square]
   (<= 0 ?square 64))
 
-(def empty-board
-  {:squares (mapv (fn [square] {:piece nil :square-color (square-color square) :key square}) (range 64))})
+(def compass
+  {:north -8
+   :northeast -7
+   :east 1
+   :southeast 9
+   :south 8
+   :southwest 7
+   :west -1
+   :northwest -9})
 
-
+(defn offset
+  [origin-square directions]
+  (reduce-kv
+    (fn [target-square direction distance]
+      (+ target-square (* (direction compass) distance)))
+    origin-square
+    (select-keys directions (keys compass))))
