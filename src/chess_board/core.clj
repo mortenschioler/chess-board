@@ -22,7 +22,7 @@
   [board square-id]
   (when-not (get-piece board square-id)
     (throw (ex-info "Cannot remove a piece from an empty square." {:reason :no-piece-to-move :board board :square square-id})))
-  (assoc-in board (piece-locator square-id) nil))
+  (update-in board [:squares square-id] dissoc :piece))
 
 (defn move
   [board square-from square-to]
