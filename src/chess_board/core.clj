@@ -1,24 +1,28 @@
 (ns chess-board.core)
 
+(defn get-square
+  [board square-id]
+  (get-in board [:squares square-id]))
+
 (defn- piece-locator
-  [square]
-  [:squares square :piece])
+  [square-id]
+  [:squares square-id :piece])
 
 (defn get-piece
-  [board square]
-  (get-in board (piece-locator square)))
+  [board square-id]
+  (get-in board (piece-locator square-id)))
 
 (defn place-piece
-  [board square piece]
-  (when-let [occupant (get-piece board square)]
-    (throw (ex-info "Cannot place a piece on an occupied square." {:reason :square-occupied :board board :square square})))
-  (assoc-in board (piece-locator square) piece))
+  [board square-id piece]
+  (when-let [occupant (get-piece board square-id)]
+    (throw (ex-info "Cannot place a piece on an occupied square." {:reason :square-occupied :board board :square square-id})))
+  (assoc-in board (piece-locator square-id) piece))
 
 (defn remove-piece
-  [board square]
-  (when-not (get-piece board square)
-    (throw (ex-info "Cannot remove a piece from an empty square." {:reason :no-piece-to-move :board board :square square})))
-  (assoc-in board (piece-locator square) nil))
+  [board square-id]
+  (when-not (get-piece board square-id)
+    (throw (ex-info "Cannot remove a piece from an empty square." {:reason :no-piece-to-move :board board :square square-id})))
+  (assoc-in board (piece-locator square-id) nil))
 
 (defn move
   [board square-from square-to]
@@ -26,29 +30,44 @@
       (remove-piece square-from)
       (place-piece square-to (get-piece board square-from))))
 
-(defn square-color
-  [square]
-  (if (even? (+ square (quot square 8)))
-          :light
-          :dark))
+(def ^{:private true} squares-by-file-x-rank 
+  [[:a1 :a2 :a3 :a4 :a5 :a6 :a7 :a8]
+   [:b1 :b2 :b3 :b4 :b5 :b6 :b7 :b8]
+   [:c1 :c2 :c3 :c4 :c5 :c6 :c7 :c8]
+   [:d1 :d2 :d3 :d4 :d5 :d6 :d7 :d8]
+   [:e1 :e2 :e3 :e4 :e5 :e6 :e7 :e8]
+   [:f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8]
+   [:g1 :g2 :g3 :g4 :g5 :g6 :g7 :g8]
+   [:h1 :h2 :h3 :h4 :h5 :h6 :h7 :h8]])
 
-(def squares (range 64))
+(defn- coords->square
+  [[file-index rank-index]]
+  (let [id (get-in squares-by-file-x-rank [file-index rank-index])
+        color (if (even? (+ file-index rank-index))
+                :dark
+                :light)]
+    {:id id
+     :file-index file-index
+     :rank-index rank-index
+     :square-color color}))
 
 (def empty-board
-  {:squares (mapv (fn [square] {:square-color (square-color square) :id square}) squares)})
+  {:squares (->> (for [file-index (range 8) rank-index (range 8)] [file-index rank-index])
+                 (reduce (fn [acc coords] (let [s (coords->square coords)] (assoc acc (:id s) s))) {}))})
+(def squares
+  (set (flatten squares-by-file-x-rank)))
 
-(def square?
-  (set squares))
+(def square? squares)
 
 (def compass
-  {:north [0 -1]
-   :northeast [1 -1]
+  {:north [0 1]
+   :northeast [1 1]
    :east [1 0]
-   :southeast [1 1]
-   :south [0 1]
-   :southwest [-1 1]
+   :southeast [1 -1]
+   :south [0 -1]
+   :southwest [-1 -1]
    :west [-1 0]
-   :northwest [-1 -1]})
+   :northwest [-1 1]})
 
 (def directions
   {:all (set (keys compass))
@@ -56,33 +75,14 @@
    :diagonal #{:northeast :southeast :southwest :northwest}})
 
 (defn file-index
-  [square]
-  (when square 
-    (mod square 8)))
+  [square-id]
+  (:file-index (get-square empty-board square-id)))
 
 (defn rank-index
-  [square]
-  (when square 
-    (quot square 8)))
+  [square-id]
+  (:rank-index (get-square empty-board square-id)))
 
 (def coords (juxt file-index rank-index))
-
-(def square->keyword
-  [:a8 :b8 :c8 :d8 :e8 :f8 :g8 :h8
-   :a7 :b7 :c7 :d7 :e7 :f7 :g7 :h7
-   :a6 :b6 :c6 :d6 :e6 :f6 :g6 :h6
-   :a5 :b5 :c5 :d5 :e5 :f5 :g5 :h5
-   :a4 :b4 :c4 :d4 :e4 :f4 :g4 :h4
-   :a3 :b3 :c3 :d3 :e3 :f3 :g3 :h3
-   :a2 :b2 :c2 :d2 :e2 :f2 :g2 :h2
-   :a1 :b1 :c1 :d1 :e1 :f1 :g1 :h1])
-
-(def coords->square 
-  (reduce
-    (fn [acc s]
-      (assoc acc (coords s) s))
-    {}
-    squares))
 
 (defn- bearing->delta
   [bearing]
@@ -93,11 +93,11 @@
     (select-keys bearing (:all directions))))
 
 (defn offset
-  "Take a square and a bearing, and return the target square, or nil if not on the board.
+  "Take a square ID and a bearing, and return the target square, or nil if not on the board.
   A bearing is a map of directions to distances representing the vector sum of 
   the distances traveled in each direction."
-  [square bearing]
-  (when square
-    (let [origin (coords square)
+  [square-id bearing]
+  (when square-id
+    (let [origin (coords square-id)
           delta (bearing->delta bearing)]
-      (coords->square (mapv + origin delta)))))
+      (get-in squares-by-file-x-rank (mapv + origin delta)))))

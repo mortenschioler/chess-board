@@ -1,7 +1,8 @@
 (ns chess-board.fen
   (:require 
     [clojure.string :as str]
-    [chess-board.core :as chess-board])
+    [chess-board.core :as chess-board]
+    [chess-board.square-orderings :as orderings])
   (:refer-clojure
     :exclude [read read-line])
   (:import (java.lang Character)))
@@ -55,12 +56,12 @@
   (let [[piece-positions] (str/split fen #" ")]
     (loop [board empty-board
            unplaced-pieces fen
-           square 0]
+           square-index 0]
       (let [[c & remaining] unplaced-pieces]
       (if c
         (case (character-type c)
-          :piece (recur (chess-board/place-piece board square (char->piece c)) remaining (inc square))
-          :number (recur board remaining (+ square (as-number c)))
-          :forward-slash (recur board remaining square))
+          :piece (recur (chess-board/place-piece board (orderings/visual square-index) (char->piece c)) remaining (inc square-index))
+          :number (recur board remaining (+ square-index (as-number c)))
+          :forward-slash (recur board remaining square-index))
         board)))))
 

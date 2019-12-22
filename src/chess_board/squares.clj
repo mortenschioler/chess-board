@@ -3,9 +3,9 @@
 (defmacro ^:private defsquares
   []
   `(do 
-     ~@(map-indexed
-         (fn [i [file rank]]
-           (list 'def (symbol (str file rank)) i))
-         (for [rank [8 7 6 5 4 3 2 1] file [\a \b \c \d \e \f \g \h]] [file rank]))))
+     ~@(map
+         (fn [square-name]
+           (list 'def (symbol square-name) (keyword square-name)))
+         (for [file [\a \b \c \d \e \f \g \h] rank [1 2 3 4 5 6 7 8]] (str file rank)))))
 
 (defsquares)

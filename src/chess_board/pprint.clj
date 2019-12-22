@@ -1,4 +1,6 @@
-(ns chess-board.pprint)
+(ns chess-board.pprint
+  (:require [chess-board.square-orderings :as orderings]
+            [chess-board.core :as core]))
 
 (defn piece->char
   [piece]
@@ -34,12 +36,16 @@
          " "
          ansi-escape-reset)))
 
-(defn print-row
-  [row]
-  (dorun (map print-square row))
-  (println))
-
 (defn print-board
-  [board & {:keys [show-coordinates] :or {show-coordinates true} :as opts}]
-  (dorun (map-indexed (fn [i row] (print (- 8 i)) (print-row row)) (partition 8 (:squares board))))
-  (when show-coordinates (println " a b c d e f g h")))
+  [board]
+  (when board
+    (doall
+      (->> orderings/visual
+           (map (partial core/get-square board))
+           (map (fn [{:keys [file-index rank-index] :as square}]
+                  (when (= 0 file-index) 
+                    (print (inc rank-index)))
+                  (print-square square)
+                  (when (= 7 file-index) 
+                    (println))))))
+    (println " a b c d e f g h")))
