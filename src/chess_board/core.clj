@@ -101,3 +101,7 @@
     (let [origin (coords square-id)
           delta (bearing->delta bearing)]
       (get-in squares-by-file-x-rank (mapv + origin delta)))))
+
+(defn slide
+  [square-id direction]
+  (rest (take-while some? (iterate #(offset % {direction 1}) square-id))))
