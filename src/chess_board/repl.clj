@@ -44,7 +44,7 @@
 
 (defn move!
   [from to]
-  (change-board! #(board/move % from to)))
+  (change-board! #(board/move-piece % from to)))
 
 (defn take!
   [from to]
@@ -52,7 +52,7 @@
     (fn [board]
       (-> board
           (board/remove-piece to)
-          (board/move from to)))))
+          (board/move-piece from to)))))
 
 (defn clear-board!
   []

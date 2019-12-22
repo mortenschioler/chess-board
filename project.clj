@@ -1,4 +1,4 @@
-(defproject chess-board "2.1.0"
+(defproject chess-board "2.2.0"
   :description "Simple chess board"
   :url "https://github.com/mortenschioler"
   :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"

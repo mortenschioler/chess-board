@@ -24,7 +24,7 @@
     (throw (ex-info "Cannot remove a piece from an empty square." {:reason :no-piece-to-move :board board :square square-id})))
   (update-in board [:squares square-id] dissoc :piece))
 
-(defn move
+(defn move-piece
   [board square-from square-to]
   (-> board
       (remove-piece square-from)
