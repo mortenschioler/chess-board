@@ -32,35 +32,62 @@
           :light
           :dark))
 
+(def squares (range 64))
+
 (def empty-board
-  {:squares (mapv (fn [square] {:piece nil :square-color (square-color square) :key square}) (range 64))})
+  {:squares (mapv (fn [square] {:square-color (square-color square) :id square}) squares)})
 
 (def square?
-  (set (range 64)))
+  (set squares))
 
 (def compass
-  {:north -8
-   :northeast -7
-   :east 1
-   :southeast 9
-   :south 8
-   :southwest 7
-   :west -1
-   :northwest -9})
+  {:north [0 -1]
+   :northeast [1 -1]
+   :east [1 0]
+   :southeast [1 1]
+   :south [0 1]
+   :southwest [-1 1]
+   :west [-1 0]
+   :northwest [-1 -1]})
 
 (def directions
   {:all (set (keys compass))
    :lateral #{:north :east :south :west}
    :diagonal #{:northeast :southeast :southwest :northwest}})
 
+(defn file-index
+  [square]
+  (when square 
+    (mod square 8)))
+
+(defn rank-index
+  [square]
+  (when square 
+    (quot square 8)))
+
+(def coords (juxt file-index rank-index))
+
+(def coords->square 
+  (reduce
+    (fn [acc s]
+      (assoc acc (coords s) s))
+    {}
+    squares))
+
+(defn- bearing->delta
+  [bearing]
+  (reduce-kv
+    (fn [d direction distance]
+      (map + d (map (partial * distance) (compass direction))))
+    [0 0]
+    (select-keys bearing (:all directions))))
+
 (defn offset
   "Take a square and a bearing, and return the target square, or nil if not on the board.
   A bearing is a map of directions to distances representing the vector sum of 
   the distances traveled in each direction."
-  [origin-square bearing]
-  (square? 
-    (reduce-kv
-      (fn [target-square direction distance]
-        (+ target-square (* (direction compass) distance)))
-      origin-square
-      (select-keys bearing (:all directions)))))
+  [square bearing]
+  (when square
+    (let [origin (coords square)
+          delta (bearing->delta bearing)]
+      (coords->square (mapv + origin delta)))))
